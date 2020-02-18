@@ -1,22 +1,12 @@
 /*
- A simple implementation of the tee command.
+ A rudimentary implementation of the tee command.
 
  Created by Kyle Combes for Software Systems at Olin College.
 */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-/**
- * Sets all of the elements in an array to be 0.
- * @param array the array to clean
- * @param size the length of the array
- */
-void clear_array(char *array, int size) {
-    for (int i = 0; i < size; i++) {
-        array[i] = 0;
-    }
-}
 
 /**
  * Reads lines from stdin and prints them to stdout and any files given.
@@ -25,18 +15,21 @@ void clear_array(char *array, int size) {
  * @param numFiles the number of files
  */
 void read_from_stdin_until_eol(char append, FILE *files[], int numFiles) {
-    char input[100];
-    clear_array(input, 100);
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    int bytes_read;
 
-    while (fgets(input, 100, stdin) != NULL) {
+    while ((read = getline(&line, &len, stdin)) != -1) {
         // Print to stdout
-        puts(input);
+        puts(line);
 
         // Write to files
         for (int i = 0; i < numFiles; i++) {
-            fputs(input, files[i]);
+            fputs(line, files[i]);
         }
     }
+    free(line);
 }
 
 /**
@@ -98,3 +91,19 @@ int main (int argc, char *argv[]) {
         read_from_stdin_until_eol(0, files, 0);
     }
 }
+
+/*
+ * REFLECTION:
+ * Getting the length of an array of strings held me up for a while. I tried
+ * using sizeof(filePaths)/sizeof(char *), but that didn't work. I finally just
+ * started passing around the number of files as determined from argc.
+ * I just asked my classmates in our Facebook Messenger chat, so I guess I
+ * could have done that earlier. (UPDATE: No helpful responses yet.)
+ * I'm also not supper happy with how my main() function looks. It feels messy.
+ *
+ * In the Apple/Berkeley code, they iterate over an array of pointers by
+ * incrementing the pointer value by 1 and quitting when the pointer is null.
+ * That's a neat trick I could use.
+ *
+ * The GNU code has a fair amount of error handling, beyond what I have.
+ */

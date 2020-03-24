@@ -39,7 +39,7 @@ def main(script, filename=None):
     plt.step(xs, ys, where='post', **options)
     plt.xlabel('Values')
     plt.ylabel('CDF')
-    plt.show()
+    plt.savefig('fig.png')
 
 
 if __name__ == '__main__':

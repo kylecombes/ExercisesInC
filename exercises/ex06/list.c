@@ -54,8 +54,12 @@ void print_list(Node **list) {
 * returns: int or -1 if the list is empty
 */
 int pop(Node **list) {
-    // FILL THIS IN!
-    return 0;
+    if (*list == NULL) return -1;
+    Node *oldHead = *list;
+    int val = oldHead->val;
+    *list = oldHead->next;
+    free(oldHead);
+    return val;
 }
 
 
@@ -65,7 +69,11 @@ int pop(Node **list) {
 * val: value to add
 */
 void push(Node **list, int val) {
-    // FILL THIS IN!
+    Node *second = *list;
+    Node *head = (Node *)malloc(sizeof(Node));
+    head->val = val;
+    head->next = second;
+    *list = head;
 }
 
 
@@ -79,8 +87,25 @@ void push(Node **list, int val) {
 * returns: number of nodes removed
 */
 int remove_by_value(Node **list, int val) {
-    // FILL THIS IN!
-    return 0;
+    Node *prev;
+    // Initialize the current node to be the first node in the list
+    Node *curr = *list;
+    // Move along the list until we find a node with the value we're looking for
+    while (curr != NULL && curr->val != val) {
+        prev = curr;
+        curr = curr->next;
+    }
+    if (curr == NULL) {
+        return 0;
+    }
+    if (prev != NULL) {
+        prev->next = curr->next;
+        free(curr);
+    } else { // Removing the first element in a list
+        *list = curr->next;
+    }
+
+    return 1;
 }
 
 
@@ -91,7 +116,20 @@ int remove_by_value(Node **list, int val) {
 * list: pointer to pointer to Node
 */
 void reverse(Node **list) {
-    // FILL THIS IN!
+    Node *prev = *list;
+    Node *current = prev->next;
+    prev->next = NULL;
+    Node *next;
+    while (current != NULL) {
+        // Keep track of the next node in the old list
+        next = current->next;
+        // Flip the direction the current node points
+        current->next = prev;
+        // Move the node pointers down the line
+        prev = current;
+        current = next;
+    }
+    *list = prev;
 }
 
 

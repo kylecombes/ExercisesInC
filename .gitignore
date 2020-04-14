@@ -2,6 +2,7 @@
 a.out
 *~
 *.py[co]
+.idea
 
 
 exercises/ex05/data

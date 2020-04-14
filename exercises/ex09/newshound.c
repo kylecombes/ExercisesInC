@@ -38,15 +38,30 @@ int main(int argc, char *argv[])
     int num_feeds = 5;
     char *search_phrase = argv[1];
     char var[255];
+    pid_t pid;
+    int *status = (int *) malloc(sizeof(int));
 
     for (int i=0; i<num_feeds; i++) {
         sprintf(var, "RSS_FEED=%s", feeds[i]);
         char *vars[] = {var, NULL};
 
-        int res = execle(PYTHON, PYTHON, SCRIPT, search_phrase, NULL, vars);
-        if (res == -1) {
-            error("Can't run script.");
+        pid = fork();
+        if (pid == -1) {
+            fprintf(stderr, "Can't fork process: %s\n", strerror(errno));
+            exit(1);
+        }
+        if (pid == 0) {
+            // We're the child process, so spin up and die
+            int res = execle(PYTHON, PYTHON, SCRIPT, search_phrase, NULL, vars);
+            if (res == -1) {
+                error("Can't run script.");
+            }
+        }
+        waitpid(pid, status, 0);
+        if (WEXITSTATUS(*status)) {
+            fprintf(stderr, "Child process %d exited with status %d.\n", i, *status);
         }
     }
+    printf("Finished!\n");
     return 0;
 }

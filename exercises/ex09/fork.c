@@ -19,6 +19,8 @@ License: MIT License https://opensource.org/licenses/MIT
 // error information
 extern int errno;
 
+const char *A_STRING = "Hello there!";
+
 
 // get_seconds returns the number of seconds since the
 // beginning of the day, with microsecond precision
@@ -32,8 +34,39 @@ double get_seconds() {
 
 void child_code(int i)
 {
+    double secs = get_seconds();
+    char *mallocedC = (char *) malloc(sizeof(char));
     sleep(i);
     printf("Hello from child %d.\n", i);
+    printf("Child %d has secs addr (stack) of %p\n", i, &secs);
+    printf("Child %d has mallocedC addr (heap) of %p\n", i, mallocedC);
+    printf("Child %d has A_STRING (const) addr of %p\n", i, &A_STRING);
+    /*
+     Output:
+        Creating child 0.
+        Creating child 1.
+        Hello from the parent.
+        Hello from child 0.
+        Child 0 has secs addr (stack) of 0x7ffe6a13d198
+        Child 0 has mallocedC addr (heap) of 0x55e64b537670
+        Child 0 has A_STRING (const) addr of 0x55e64a2b0010
+        Child 30873 exited with error code 0.
+        Hello from child 1.
+        Child 1 has secs addr (stack) of 0x7ffe6a13d198
+        Child 1 has mallocedC addr (heap) of 0x55e64b537670
+        Child 1 has A_STRING (const) addr of 0x55e64a2b0010
+        Child 30874 exited with error code 1.
+        Elapsed time = 1.002449 seconds.
+     Since the virtual addresses are the same but each process must not have
+     access to the other processes' data, then the processes must have different
+     memory segments.
+
+     I can't think of a way to check whether or not they share the same code and
+     static segments. They should share the code segment, per the last comment
+     on https://www.geeksforgeeks.org/fork-memory-shared-bw-processes-created-using/,
+     and (also per that comment) it seems that static should be shared until
+     one of them changes their copy.
+     */
 }
 
 // main takes two parameters: argc is the number of command-line
